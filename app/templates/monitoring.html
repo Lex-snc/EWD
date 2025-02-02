@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/monitoring.css') }}">
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+  <div class="main-container">
+    <div class="box editable-box">
+      <h3>Editable Message</h3>
+      <textarea id="editable-message" placeholder="Enter your message here..."></textarea>
+      <button onclick="saveMessage()">Save Message</button>
+    </div>
+    <div class="box">
+      <h3>Monitoring Terminal</h3>
+      <div class="monitor-terminal" id="monitor-terminal">
+        <p>Water Level: {{ water_level }} cm</p>
+        <p>Current: {{ current }} A</p>
+        <p>Timestamp: {{ timestamp }}</p>
+      </div>
+    </div>
+    
+    <div class="box">
+      <h3>Weather Monitoring</h3>
+      <div class="clock-container">
+        <div class="clock">{{ timestamp }}</div>
+        <div class="temperature">{{ hourly_data[0].temperature }}°C - Current Temp</div>
+        <div class="forecast">
+          {% for data in daily_data[:3] %}
+          <div class="forecast-item">
+            <p>{{ data.date }}</p>
+            <p>Weather Code: {{ data.weather_code }}</p>
+            <p>
+              {% if data.weather_code == 0.0 %}
+                Clear Sky
+              {% elif data.weather_code == 1.0 %}
+                Mainly Clear
+              {% elif data.weather_code == 2.0 %}
+                Partly Cloudy
+              {% elif data.weather_code == 3.0 %}
+                Cloudy
+              {% elif data.weather_code == 45.0 %}
+                Fog/Mist
+              {% elif data.weather_code == 48.0 %}
+                Freezing Fog
+              {% elif data.weather_code == 51.0 %}
+                Light Drizzle
+              {% elif data.weather_code == 53.0 %}
+                Moderate Drizzle
+              {% elif data.weather_code == 55.0 %}
+                Dense Drizzle
+              {% elif data.weather_code == 56.0 %}
+                Freezing Drizzle
+              {% elif data.weather_code == 57.0 %}
+                Dense Freezing Drizzle
+              {% elif data.weather_code == 61.0 %}
+                Light Rain
+              {% elif data.weather_code == 63.0 %}
+                Moderate Rain
+              {% elif data.weather_code == 65.0 %}
+                Heavy Rain
+              {% elif data.weather_code == 66.0 %}
+                Freezing Rain
+              {% elif data.weather_code == 67.0 %}
+                Heavy Freezing Rain
+              {% elif data.weather_code == 71.0 %}
+                Light Snow
+              {% elif data.weather_code == 73.0 %}
+                Moderate Snow
+              {% elif data.weather_code == 75.0 %}
+                Heavy Snow
+              {% elif data.weather_code == 77.0 %}
+                Snow Grains
+              {% elif data.weather_code == 80.0 %}
+                Light Rain Showers
+              {% elif data.weather_code == 81.0 %}
+                Moderate Rain Showers
+              {% elif data.weather_code == 82.0 %}
+                Violent Rain Showers
+              {% elif data.weather_code == 85.0 %}
+                Light Snow Showers
+              {% elif data.weather_code == 86.0 %}
+                Heavy Snow Showers
+              {% elif data.weather_code == 95.0 %}
+                Thunderstorm
+              {% elif data.weather_code == 96.0 %}
+                Thunderstorm with Light Hail
+              {% elif data.weather_code == 99.0 %}
+                Thunderstorm with Heavy Hail
+              {% else %}
+                Unknown Weather Code
+              {% endif %}
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
