@@ -6,6 +6,7 @@ import openmeteo_requests
 import requests_cache
 import pandas as pd
 from retry_requests import retry
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # For session management
@@ -138,17 +139,85 @@ def monitor():
         daily_data=daily_data
     )
 
+# Function to get location name from coordinates using reverse geocoding
+def get_location_name(latitude, longitude):
+    try:
+        # Use Open-Meteo Geocoding API for reverse geocoding
+        url = f"https://geocoding-api.open-meteo.com/v1/search?latitude={latitude}&longitude={longitude}&count=1"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        
+        if 'results' in data and len(data['results']) > 0:
+            result = data['results'][0]
+            location_parts = []
+            
+            # Build location string with available information
+            if 'name' in result:
+                location_parts.append(result['name'])
+            
+            # Add administrative area if different from name
+            if 'admin1' in result and result.get('admin1') != result.get('name'):
+                location_parts.append(result['admin1'])
+                
+            # Add country
+            if 'country' in result:
+                location_parts.append(result['country'])
+            
+            # If we have timezone information, use it
+            timezone = result.get('timezone', 'auto')
+            
+            location_name = ", ".join(location_parts)
+            print(f"Location detected: {location_name} ({latitude}, {longitude})")
+            
+            return {
+                'name': location_name,
+                'latitude': latitude,
+                'longitude': longitude,
+                'timezone': timezone
+            }
+        else:
+            print(f"No location data found for coordinates: {latitude}, {longitude}")
+            return {
+                'name': f"Location at {latitude:.4f}, {longitude:.4f}",
+                'latitude': latitude,
+                'longitude': longitude,
+                'timezone': 'auto'
+            }
+    except Exception as e:
+        print(f"Error in reverse geocoding: {e}")
+        return {
+            'name': f"Location at {latitude:.4f}, {longitude:.4f}",
+            'latitude': latitude,
+            'longitude': longitude,
+            'timezone': 'auto'
+        }
+
 # Real-time Weather Data Route
 @app.route('/get_weather_data')
 def get_weather_data():
     try:
+        # Get location from request parameters or use defaults
+        latitude = request.args.get('lat', 52.52)
+        longitude = request.args.get('lon', 13.41)
+        
+        # Convert to float
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            latitude = 52.52
+            longitude = 13.41
+        
+        # Get location name using reverse geocoding
+        location_info = get_location_name(latitude, longitude)
+        
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
-            "latitude": 52.52,
-            "longitude": 13.41,
+            "latitude": latitude,
+            "longitude": longitude,
             "hourly": ["temperature_2m", "relative_humidity_2m", "precipitation_probability", "wind_speed_10m", "weather_code"],
             "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
-            "timezone": "Asia/Singapore"
+            "timezone": location_info['timezone']  # Use timezone based on location
         }
         
         responses = openmeteo.weather_api(url, params=params)
@@ -186,9 +255,15 @@ def get_weather_data():
         return jsonify({
             "success": True,
             "hourly_data": hourly_data,
-            "daily_data": daily_data
+            "daily_data": daily_data,
+            "location_name": location_info['name'],
+            "coordinates": {
+                "latitude": latitude,
+                "longitude": longitude
+            }
         })
     except Exception as e:
+        print(f"Error in get_weather_data: {e}")
         return jsonify({
             "success": False,
             "error": str(e)

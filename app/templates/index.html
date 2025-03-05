@@ -63,6 +63,9 @@
           }).then(() => {
             // Redirect to the monitoring page after the success message
             window.location.href = '/monitor';  // Adjust as per your route
+          }).finally(() => {
+            // Remove sweetalert-open class after modal closes
+            document.body.classList.remove('sweetalert-open');
           });
         } else {
           // If invalid credentials
@@ -71,6 +74,9 @@
             title: 'Invalid Credentials',
             text: data.message,
             showConfirmButton: true,
+          }).finally(() => {
+            // Remove sweetalert-open class after modal closes
+            document.body.classList.remove('sweetalert-open');
           });
         }
       })
@@ -83,6 +89,9 @@
           title: 'Login Failed',
           text: 'An error occurred. Please try again later.',
           showConfirmButton: true,
+        }).finally(() => {
+          // Remove sweetalert-open class after modal closes
+          document.body.classList.remove('sweetalert-open');
         });
       });
     });
