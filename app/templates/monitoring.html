@@ -1,105 +1,551 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoring Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/monitoring.css') }}">
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/monitoring.css') }}">
+    <style>
+     body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #343a40;
+    color: white;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    flex: 1;
+    padding: 10px 15px;
+    margin-right: 250px;
+    overflow-y: auto;
+    max-width: calc(100vw - 250px);
+}
+
+.side-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.weather-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.weather-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 230px;
+    display: flex;
+    flex-direction: column;
+}
+
+.weather-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    min-width: 0;
+}
+
+.weather-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.weather-icon {
+    font-size: 1.2em;
+    color: #4a90e2;
+    flex-shrink: 0;
+}
+
+.chart-container {
+    flex: 1;
+    min-height: 140px;
+    position: relative;
+    margin-top: 8px;
+}
+
+.parameter-value {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 2px 0;
+    color: #2c3e50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-title {
+    color: #2c3e50;
+    margin: 5px 0 8px 0;
+    font-size: 1.2em;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.refresh-button {
+    padding: 6px 12px;
+    font-size: 0.9em;
+    margin: 4px 0;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.refresh-button:hover {
+    background: #45a049;
+}
+
+.forecast {
+    margin-top: 320px;
+    position: absolute;
+    top: 50px;
+    left: 393px;
+}
+
+.forecast h4 {
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+#forecast-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+#forecast-container .weather-card {
+    height: auto;
+    padding: 15px;
+}
+
+.monitor-terminal {
+    background: #1e1e1e;
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    font-size: 0.85em;
+}
+
+.monitor-terminal p {
+    margin: 4px 0;
+}
+
+.sms-panel {
+    background: #fff;
+    border-radius: 6px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+}
+
+.sms-container textarea {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 6px;
+    
+}
+
+.clock-panel {
+    background: #fff;
+    border-radius: 6px;
+    
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+}
+
+.clock-container {
+    padding: 10px;
+    width:100%
+}
+
+#digital-clock {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#date-display {
+    font-size: 1.2em;
+    color: #549e42;
+}
+
+@media (max-width: 1400px) {
+    .weather-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .weather-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .main-content {
+        margin-right: 0;
+        max-width: 100%;
+    }
+
+    .side-panel {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
+    }
+
+    .weather-grid {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 12px;
+    }
+
+    .weather-card {
+        height: auto;
+        padding: 12px;
+    }
+
+    .forecast {
+        margin-top: 20px;
+        position: relative;
+        left: 0;
+        width: 100%;
+    }
+
+    #forecast-container {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 8px;
+    }
+}
+
+    </style>
 </head>
 <body>
-  <div class="main-container">
-    <div class="box editable-box">
-      <h3>Editable Message</h3>
-      <textarea id="editable-message" placeholder="Enter your message here..."></textarea>
-      <button onclick="saveMessage()">Save Message</button>
-    </div>
-    <div class="box">
-      <h3>Monitoring Terminal</h3>
-      <div class="monitor-terminal" id="monitor-terminal">
-        <p>Water Level: {{ water_level }} cm</p>
-        <p>Current: {{ current }} A</p>
-        <p>Timestamp: {{ timestamp }}</p>
-      </div>
-    </div>
     
-    <div class="box">
-      <h3>Weather Monitoring</h3>
-      <div class="clock-container">
-        <div class="clock">{{ timestamp }}</div>
-        <div class="temperature">{{ hourly_data[0].temperature }}°C - Current Temp</div>
-        <div class="forecast">
-          {% for data in daily_data[:3] %}
-          <div class="forecast-item">
-            <p>{{ data.date }}</p>
-            <p>Weather Code: {{ data.weather_code }}</p>
-            <p>
-              {% if data.weather_code == 0.0 %}
-                Clear Sky
-              {% elif data.weather_code == 1.0 %}
-                Mainly Clear
-              {% elif data.weather_code == 2.0 %}
-                Partly Cloudy
-              {% elif data.weather_code == 3.0 %}
-                Cloudy
-              {% elif data.weather_code == 45.0 %}
-                Fog/Mist
-              {% elif data.weather_code == 48.0 %}
-                Freezing Fog
-              {% elif data.weather_code == 51.0 %}
-                Light Drizzle
-              {% elif data.weather_code == 53.0 %}
-                Moderate Drizzle
-              {% elif data.weather_code == 55.0 %}
-                Dense Drizzle
-              {% elif data.weather_code == 56.0 %}
-                Freezing Drizzle
-              {% elif data.weather_code == 57.0 %}
-                Dense Freezing Drizzle
-              {% elif data.weather_code == 61.0 %}
-                Light Rain
-              {% elif data.weather_code == 63.0 %}
-                Moderate Rain
-              {% elif data.weather_code == 65.0 %}
-                Heavy Rain
-              {% elif data.weather_code == 66.0 %}
-                Freezing Rain
-              {% elif data.weather_code == 67.0 %}
-                Heavy Freezing Rain
-              {% elif data.weather_code == 71.0 %}
-                Light Snow
-              {% elif data.weather_code == 73.0 %}
-                Moderate Snow
-              {% elif data.weather_code == 75.0 %}
-                Heavy Snow
-              {% elif data.weather_code == 77.0 %}
-                Snow Grains
-              {% elif data.weather_code == 80.0 %}
-                Light Rain Showers
-              {% elif data.weather_code == 81.0 %}
-                Moderate Rain Showers
-              {% elif data.weather_code == 82.0 %}
-                Violent Rain Showers
-              {% elif data.weather_code == 85.0 %}
-                Light Snow Showers
-              {% elif data.weather_code == 86.0 %}
-                Heavy Snow Showers
-              {% elif data.weather_code == 95.0 %}
-                Thunderstorm
-              {% elif data.weather_code == 96.0 %}
-                Thunderstorm with Light Hail
-              {% elif data.weather_code == 99.0 %}
-                Thunderstorm with Heavy Hail
-              {% else %}
-                Unknown Weather Code
-              {% endif %}
-            </p>
-          </div>
-          {% endfor %}
+
+    <div class="dashboard-container">
+        <div class="main-content">
+            <h2 class="section-title">Weather Monitoring Dashboard</h2>
+            <button class="refresh-button" onclick="refreshWeatherData()">
+                <i class="fas fa-sync-alt"></i> Refresh Weather Data
+            </button>
+            
+            <div class="weather-grid">
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <i class="fas fa-temperature-high weather-icon"></i>
+                        <div class="weather-info">
+                            <h4 style="margin: 0;">Temperature</h4>
+                            <div class="parameter-value" id="current-temp">{{ hourly_data[0].temperature }}°C</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <i class="fas fa-tint weather-icon"></i>
+                        <div class="weather-info">
+                            <h4 style="margin: 0;">Humidity</h4>
+                            <div class="parameter-value" id="current-humidity">--</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="humidityChart"></canvas>
+                    </div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <i class="fas fa-cloud-rain weather-icon"></i>
+                        <div class="weather-info">
+                            <h4 style="margin: 0;">Precipitation</h4>
+                            <div class="parameter-value" id="current-precip">--</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="precipChart"></canvas>
+                    </div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <i class="fas fa-wind weather-icon"></i>
+                        <div class="weather-info">
+                            <h4 style="margin: 0;">Wind Speed</h4>
+                            <div class="parameter-value" id="current-wind">--</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="windChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forecast">
+                <h4>3-Day Forecast</h4>
+                <div id="forecast-container"></div>
+            </div>
         </div>
-      </div>
+
+        <div class="side-panel">
+            
+            <div class="monitor-terminal" id="monitor-terminal">
+                <p>Water Level: <span id="water-level">{{ water_level }}</span> cm</p>
+                <p>Current: <span id="current">{{ current }}</span> A</p>
+                <p>Timestamp: <span id="timestamp">{{ timestamp }}</span></p>
+            </div>
+
+            <div class="sms-panel">
+                <h5>SMS Notification</h5>
+                <div class="sms-container">
+                    <textarea id="editable-message" placeholder="Enter your message here..." maxlength="160" rows="4"></textarea>
+                    <div class="character-count">
+                        <span id="char-count">0</span>/160 characters
+                    </div>
+                    <button class="send-button" onclick="saveMessage()">
+                        <span class="button-text">Edit SMS</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="clock-panel">
+                <div class="clock-container">
+                    <div id="digital-clock">00:00:00</div>
+                    <div id="date-display">Wednesday, March 5, 2025</div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let charts = {};
+
+        function getWeatherIcon(code) {
+            if (code <= 1) return 'fa-sun';
+            if (code <= 3) return 'fa-cloud-sun';
+            if (code <= 48) return 'fa-cloud';
+            if (code <= 57) return 'fa-cloud-rain';
+            if (code <= 67) return 'fa-cloud-showers-heavy';
+            if (code <= 77) return 'fa-snowflake';
+            if (code <= 82) return 'fa-cloud-rain';
+            if (code <= 86) return 'fa-snowflake';
+            return 'fa-bolt';
+        }
+
+        function createChart(ctx, label, data, labels, color) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 9
+                                }
+                            },
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 9
+                                },
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 5
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 5,
+                            right: 5,
+                            top: 5,
+                            bottom: 5
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(hourlyData) {
+            const nextHours = hourlyData.time.slice(0, 24);
+            const temps = hourlyData.temperature.slice(0, 24);
+            const humidity = hourlyData.humidity.slice(0, 24);
+            const precip = hourlyData.precipitation_prob.slice(0, 24);
+            const wind = hourlyData.wind_speed.slice(0, 24);
+
+            if (charts.temp) charts.temp.destroy();
+            if (charts.humidity) charts.humidity.destroy();
+            if (charts.precip) charts.precip.destroy();
+            if (charts.wind) charts.wind.destroy();
+
+            charts.temp = createChart(document.getElementById('tempChart'), 'Temperature', temps, nextHours, '#ff6384');
+            charts.humidity = createChart(document.getElementById('humidityChart'), 'Humidity', humidity, nextHours, '#36a2eb');
+            charts.precip = createChart(document.getElementById('precipChart'), 'Precipitation', precip, nextHours, '#4bc0c0');
+            charts.wind = createChart(document.getElementById('windChart'), 'Wind Speed', wind, nextHours, '#ff9f40');
+
+            // Update current values
+            document.getElementById('current-temp').textContent = temps[0].toFixed(1) + '°C';
+            document.getElementById('current-humidity').textContent = humidity[0].toFixed(1) + '%';
+            document.getElementById('current-precip').textContent = precip[0].toFixed(1) + '%';
+            document.getElementById('current-wind').textContent = wind[0].toFixed(1) + ' km/h';
+        }
+
+        function updateForecast(dailyData) {
+            const container = document.getElementById('forecast-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 3; i++) {
+                const date = new Date(dailyData.time[i]);
+                const card = document.createElement('div');
+                card.className = 'weather-card';
+                card.innerHTML = `
+                    <h4>${date.toLocaleDateString()}</h4>
+                    <i class="fas ${getWeatherIcon(dailyData.weather_code[i])} weather-icon"></i>
+                    <p>High: ${dailyData.temp_max[i].toFixed(1)}°C</p>
+                    <p>Low: ${dailyData.temp_min[i].toFixed(1)}°C</p>
+                    <p>Precipitation: ${dailyData.precipitation[i].toFixed(1)}mm</p>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        async function refreshWeatherData() {
+            try {
+                const response = await fetch('/get_weather_data');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateCharts(data.hourly_data);
+                    updateForecast(data.daily_data);
+                } else {
+                    console.error('Failed to fetch weather data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        // Initial load
+        refreshWeatherData();
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshWeatherData, 300000);
+
+        // Character count for SMS
+        document.getElementById('editable-message').addEventListener('input', function() {
+            document.getElementById('char-count').textContent = this.value.length;
+        });
+
+        // Real-time clock function
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // Format options for date display
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            
+            document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('date-display').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Initial clock update
+        updateClock();
+        
+        // Update clock every second
+        setInterval(updateClock, 1000);
+    </script>
 </body>
 </html>

@@ -150,6 +150,123 @@ h3 {
   transform: scale(1.05);
 }
 
+.sms-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+#editable-message {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+  background-color: #f8f9fa;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: inherit;
+}
+
+#editable-message:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.character-count {
+  text-align: right;
+  color: #666;
+  font-size: 14px;
+  margin-top: -5px;
+}
+
+.send-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.send-button:hover {
+  background-color: #357abd;
+  transform: translateY(-2px);
+}
+
+.send-button:active {
+  transform: translateY(0);
+}
+
+.button-text {
+  font-weight: 500;
+}
+
+.message-history {
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 15px;
+}
+
+.message-history h4 {
+  color: #444;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+
+#message-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.message-item {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.message-item .timestamp {
+  color: #666;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.message-item .text {
+  color: #333;
+  word-break: break-word;
+}
+
+#message-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#message-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#message-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+#message-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 /* Fade-in Animation */
 @keyframes fadeIn {
   0% {

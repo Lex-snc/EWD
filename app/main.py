@@ -42,8 +42,8 @@ def weather():
     params = {
         "latitude": 52.52,
         "longitude": 13.41,
-        "hourly": "temperature_2m",
-        "daily": "weather_code",
+        "hourly": ["temperature_2m", "relative_humidity_2m", "precipitation_probability", "wind_speed_10m", "weather_code"],
+        "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
         "timezone": "Asia/Singapore"
     }
     responses = openmeteo.weather_api(url, params=params)
@@ -89,8 +89,8 @@ def monitor():
     params = {
         "latitude": 52.52,
         "longitude": 13.41,
-        "hourly": "temperature_2m",
-        "daily": "weather_code",
+        "hourly": ["temperature_2m", "relative_humidity_2m", "precipitation_probability", "wind_speed_10m", "weather_code"],
+        "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
         "timezone": "Asia/Singapore"
     }
 
@@ -137,6 +137,62 @@ def monitor():
         hourly_data=hourly_data,
         daily_data=daily_data
     )
+
+# Real-time Weather Data Route
+@app.route('/get_weather_data')
+def get_weather_data():
+    try:
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": 52.52,
+            "longitude": 13.41,
+            "hourly": ["temperature_2m", "relative_humidity_2m", "precipitation_probability", "wind_speed_10m", "weather_code"],
+            "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_sum"],
+            "timezone": "Asia/Singapore"
+        }
+        
+        responses = openmeteo.weather_api(url, params=params)
+        response = responses[0]
+
+        hourly = response.Hourly()
+        hourly_data = {
+            "temperature": hourly.Variables(0).ValuesAsNumpy().tolist(),
+            "humidity": hourly.Variables(1).ValuesAsNumpy().tolist(),
+            "precipitation_prob": hourly.Variables(2).ValuesAsNumpy().tolist(),
+            "wind_speed": hourly.Variables(3).ValuesAsNumpy().tolist(),
+            "weather_code": hourly.Variables(4).ValuesAsNumpy().tolist(),
+            "time": [str(t) for t in pd.date_range(
+                start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
+                end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
+                freq=pd.Timedelta(seconds=hourly.Interval()),
+                inclusive="left"
+            )]
+        }
+
+        daily = response.Daily()
+        daily_data = {
+            "weather_code": daily.Variables(0).ValuesAsNumpy().tolist(),
+            "temp_max": daily.Variables(1).ValuesAsNumpy().tolist(),
+            "temp_min": daily.Variables(2).ValuesAsNumpy().tolist(),
+            "precipitation": daily.Variables(3).ValuesAsNumpy().tolist(),
+            "time": [str(t) for t in pd.date_range(
+                start=pd.to_datetime(daily.Time(), unit="s", utc=True),
+                end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
+                freq=pd.Timedelta(seconds=daily.Interval()),
+                inclusive="left"
+            )]
+        }
+
+        return jsonify({
+            "success": True,
+            "hourly_data": hourly_data,
+            "daily_data": daily_data
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)
