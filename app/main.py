@@ -21,7 +21,7 @@ retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
 openmeteo = openmeteo_requests.Client(session=retry_session)
 
 # Index Route (Login Page)
-@app.route('/')
+@app.route('/index') # /
 def index():
     return render_template("index.html")
 
@@ -36,7 +36,7 @@ def login():
         return jsonify({'success': False, 'message': 'Invalid username or password.'})
 
 # Weather Data Route
-@app.route('/weather')
+@app.route('/')  #/weather
 def weather():
     # Open-Meteo API Request
     url = "https://api.open-meteo.com/v1/forecast"
